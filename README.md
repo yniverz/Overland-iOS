@@ -15,6 +15,8 @@ There are many settings available in the settings tab which allow you to adjust 
 The app sends data to an HTTP endpoint. You can use an existing backend or build your own. The app works with:
 
 * [Compass](https://github.com/aaronpk/Compass) - a self-hosted PHP app built to save and review data from this app
+* [Wayfinder](https://github.com/dontic/wayfinder) - a self-hosted app for Overland
+* [Dawarich](https://dawarich.app/) - a self-hosted alternative to Google Location History
 * [PureTrack](https://puretrack.io/add-overland) - a service for tracking lightweight planes and gliders
 * [Open Humans](https://overland.openhumans.org/) - a service for tracking your data and sharing it for research purposes
 * [Icecondor](https://icecondor.com/) - a service for tracking your location, sharing with friends, and setting geofence alerts
