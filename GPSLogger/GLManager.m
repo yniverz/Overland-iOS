@@ -819,6 +819,12 @@ const double MPH_to_METERSPERSECOND = 0.447;
     // We'll cancel the notification when we get an update from the system, so this should only
     // run if the app is shut down for some reason.
     
+    // Make sure this only delivers when user has opted in to notifications,
+    // and when stopsAutomaticallyRadius is configured do not deliver, because it will deliver its own "paused updates" notification.
+    if(!self.notificationsEnabled || self.stopsAutomaticallyRadius != -1) {
+        return;
+    }
+    
     int scheduleRateLimit = 60;
     int reminderIntervalSeconds = 600;
     
