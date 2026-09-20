@@ -424,7 +424,7 @@ const double MPH_to_METERSPERSECOND = 0.447;
         
         NSDictionary *stopsRadiusBlocks = @{
             @"off": ^{ self.stopsAutomaticallyRadius = -1; },
-            @"10m": ^{ self.stopsAutomaticallyRadius = 1; },
+            @"10m": ^{ self.stopsAutomaticallyRadius = 10; },
             @"20m": ^{ self.stopsAutomaticallyRadius = 20; },
             @"50m": ^{ self.stopsAutomaticallyRadius = 50; },
             @"100m": ^{ self.stopsAutomaticallyRadius = 100; },
@@ -433,11 +433,11 @@ const double MPH_to_METERSPERSECOND = 0.447;
         [self runBlock:stopsRadiusBlocks fromDictionary:main forKey:@"stop_radius"];
         
         NSDictionary *stopsTimeBlocks = @{
-            @"1min": ^{ self.discardPointsWithinSeconds = 60; },
-            @"2min": ^{ self.discardPointsWithinSeconds = 60*2; },
-            @"5min": ^{ self.discardPointsWithinSeconds = 60*5; },
-            @"10min": ^{ self.discardPointsWithinSeconds = 60*10; },
-            @"20min": ^{ self.discardPointsWithinSeconds = 60*20; },
+            @"1min": ^{ self.stopsAutomaticallyAfterSeconds = 60; },
+            @"2min": ^{ self.stopsAutomaticallyAfterSeconds = 60*2; },
+            @"5min": ^{ self.stopsAutomaticallyAfterSeconds = 60*5; },
+            @"10min": ^{ self.stopsAutomaticallyAfterSeconds = 60*10; },
+            @"20min": ^{ self.stopsAutomaticallyAfterSeconds = 60*20; },
         };
         [self runBlock:stopsTimeBlocks fromDictionary:main forKey:@"stop_time"];
 
