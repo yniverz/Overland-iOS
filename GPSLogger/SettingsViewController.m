@@ -111,18 +111,34 @@
     self.locationAuthorizationStatusWarning.enabled = YES;
     self.requestLocationPermissionsButton.enabled = YES;
     
-    if (self.continuousTrackingMode.selectedSegmentIndex == 3) {
-        self.stopsAutomatically.enabled = YES;
-        
-        if (self.stopsAutomatically.selectedSegmentIndex != 0) {
-            self.stopsAutomaticallyAfter.enabled = YES;
-        } else {
-            self.stopsAutomaticallyAfter.enabled = NO;
-        }
-    } else {
-        self.stopsAutomatically.enabled = NO;
-        self.stopsAutomaticallyAfter.enabled = NO;
+    [self updateAutoPauseExclusivity];
+}
+
+- (BOOL)controlsUnlocked {
+    return self.settingsLockSlider.value > 95;
+}
+
+// "Pause Automatically" and the manual stop radius both shut down continuous updates but
+// resume differently, so only one of them may be armed at a time.
+- (void)updateAutoPauseExclusivity {
+    if(![self controlsUnlocked]) {
+        return;
     }
+
+    BOOL modeSupportsStops = self.continuousTrackingMode.selectedSegmentIndex == 3;
+    BOOL autoPauseOn = self.pausesAutomatically.selectedSegmentIndex == 1;
+    BOOL stopRadiusOn = modeSupportsStops && self.stopsAutomatically.selectedSegmentIndex != 0;
+
+    self.stopsAutomatically.enabled = modeSupportsStops && !autoPauseOn;
+    self.stopsAutomaticallyAfter.enabled = self.stopsAutomatically.enabled && stopRadiusOn;
+
+    self.pausesAutomatically.enabled = !stopRadiusOn;
+    self.resumesWithGeofence.enabled = !stopRadiusOn;
+}
+
+- (void)clearStopsAutomatically {
+    self.stopsAutomatically.selectedSegmentIndex = 0;
+    [GLManager sharedManager].stopsAutomaticallyRadius = -1;
 }
 
 - (void)authorizationStatusChanged {
@@ -363,6 +379,7 @@
         self.discardAccuracyValueLabel.text = @"Max Accuracy of Points";
     }
     
+    [self updateAutoPauseExclusivity];
 }
 
 - (IBAction)toggleLogging:(UISegmentedControl *)sender {
@@ -425,7 +442,10 @@
     if(sender.selectedSegmentIndex == 0) {
         self.resumesWithGeofence.selectedSegmentIndex = 0;
         [GLManager sharedManager].resumesAfterDistance = -1;
+    } else {
+        [self clearStopsAutomatically];
     }
+    [self updateAutoPauseExclusivity];
 }
 
 - (IBAction)resumeWithGeofenceWasChanged:(UISegmentedControl *)sender {
@@ -465,8 +485,11 @@
     }
     [GLManager sharedManager].trackingMode = m;
     
-    self.stopsAutomatically.enabled = m == kGLTrackingModeStandardAndSignificant;
-    self.stopsAutomaticallyAfter.enabled = self.stopsAutomatically.selectedSegmentIndex != 0;
+    if(m != kGLTrackingModeStandardAndSignificant) {
+        [self clearStopsAutomatically];
+    }
+    
+    [self updateAutoPauseExclusivity];
 }
 
 - (IBAction)visitTrackingWasChanged:(UISegmentedControl *)sender {
@@ -567,7 +590,14 @@
     }
     [GLManager sharedManager].stopsAutomaticallyRadius = distance;
     
-    self.stopsAutomaticallyAfter.enabled = sender.selectedSegmentIndex != 0;
+    if(distance > 0) {
+        self.pausesAutomatically.selectedSegmentIndex = 0;
+        [GLManager sharedManager].pausesAutomatically = NO;
+        self.resumesWithGeofence.selectedSegmentIndex = 0;
+        [GLManager sharedManager].resumesAfterDistance = -1;
+    }
+    
+    [self updateAutoPauseExclusivity];
 }
 
 - (IBAction)stopsAutomaticallyAfterWasChanged:(UISegmentedControl *)sender {

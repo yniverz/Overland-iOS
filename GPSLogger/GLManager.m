@@ -821,8 +821,8 @@ const double MPH_to_METERSPERSECOND = 0.447;
     // run if the app is shut down for some reason.
     
     // Make sure this only delivers when user has opted in to notifications,
-    // and when stopsAutomaticallyRadius is configured do not deliver, because it will deliver its own "paused updates" notification.
-    if(!self.notificationsEnabled || self.stopsAutomaticallyRadius != -1) {
+    // and when the stop radius is active do not deliver, because it will deliver its own "paused updates" notification.
+    if(!self.notificationsEnabled || self.stopsAutomaticallyActive) {
         return;
     }
     
@@ -1254,6 +1254,14 @@ const double MPH_to_METERSPERSECOND = 0.447;
 }
 - (void)setStopsAutomaticallyRadius:(CLLocationDistance)distance {
     [[NSUserDefaults standardUserDefaults] setDouble:distance forKey:GLStopsAutomaticallyDefaultsName];
+}
+
+// The radius setting only has an effect in this one tracking mode, and it is mutually
+// exclusive with the system pauser because the two have incompatible resume paths.
+- (BOOL)stopsAutomaticallyActive {
+    return self.trackingMode == kGLTrackingModeStandardAndSignificant
+        && self.stopsAutomaticallyRadius != -1
+        && !self.pausesAutomatically;
 }
 
 - (int)stopsAutomaticallyAfterSeconds {
@@ -1824,7 +1832,7 @@ const double MPH_to_METERSPERSECOND = 0.447;
     
     // If stopsautomatically is active, update the saved location and time whenever user exits the radius.
     // Also make sure that the location timestamp isnt older than 20 seconds to handle apple delivering locations late.
-    if (self.stopsAutomaticallyRadius != -1 && ([self.lastLocation.timestamp timeIntervalSinceNow] > -20 || !self.lastTimeMovedBeyondStopThreshold)) {
+    if (self.stopsAutomaticallyActive && ([self.lastLocation.timestamp timeIntervalSinceNow] > -20 || !self.lastTimeMovedBeyondStopThreshold)) {
         if ([self.lastLocationMovedBeyondStopThreshold distanceFromLocation:self.lastLocation] > self.stopsAutomaticallyRadius || !self.lastTimeMovedBeyondStopThreshold) {
             self.lastLocationMovedBeyondStopThreshold = self.lastLocation;
             self.lastTimeMovedBeyondStopThreshold = NSDate.now;
@@ -1835,8 +1843,7 @@ const double MPH_to_METERSPERSECOND = 0.447;
     // if all necessary settings are activated, and user spent enough time within radius, stop location updates,
     // and rely only on significant location change to signal movement and subsequent restarting of the updates.
     // this will happen after around 500 meters, but will DRASTICALLY save battery life.
-    if (self.trackingMode == kGLTrackingModeStandardAndSignificant \
-        && self.stopsAutomaticallyRadius != -1 \
+    if (self.stopsAutomaticallyActive \
         && self.lastTimeMovedBeyondStopThreshold \
         && [self.lastTimeMovedBeyondStopThreshold timeIntervalSinceNow] < -self.stopsAutomaticallyAfterSeconds) {
         

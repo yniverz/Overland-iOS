@@ -126,6 +126,7 @@ typedef void (^CaseBlock)(void);
 @property (nonatomic) CLLocationDistance resumesAfterDistance;
 @property (nonatomic) CLLocationDistance discardPointsWithinDistance;
 @property (nonatomic) CLLocationDistance stopsAutomaticallyRadius;
+@property (nonatomic, readonly) BOOL stopsAutomaticallyActive;
 @property (nonatomic) CLLocationAccuracy discardPointsOutsideAccuracy;
 @property (nonatomic) int stopsAutomaticallyAfterSeconds;
 @property (nonatomic) int discardPointsWithinSeconds;

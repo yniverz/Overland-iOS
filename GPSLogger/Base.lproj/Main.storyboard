@@ -1090,7 +1090,7 @@ IAogA
                                                             <action selector="pausesAutomaticallyWasChanged:" destination="8rJ-Kc-sve" eventType="valueChanged" id="RZZ-a5-xtJ"/>
                                                         </connections>
                                                     </segmentedControl>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Updates may not be restarted automatically if this is enabled." lineBreakMode="wordWrap" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wgO-EI-YZl">
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="May not be restarted automatically if this is enabled. If Tracking Mode is set to &quot;Both&quot;, better pausing can be configured below." lineBreakMode="wordWrap" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wgO-EI-YZl">
                                                         <rect key="frame" x="0.0" y="51.5" width="335" height="41"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <color key="textColor" systemColor="secondaryLabelColor"/>
