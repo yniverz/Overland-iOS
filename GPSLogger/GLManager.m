@@ -759,6 +759,7 @@ const double MPH_to_METERSPERSECOND = 0.447;
 
 - (void)disableTracking {
     self.trackingEnabled = NO;
+    self.didPauseByRadius = NO;
     [UIDevice currentDevice].batteryMonitoringEnabled = NO;
     [self.locationManager stopMonitoringVisits];
     [self.locationManager stopUpdatingHeading];
@@ -1266,6 +1267,14 @@ const double MPH_to_METERSPERSECOND = 0.447;
     [[NSUserDefaults standardUserDefaults] setInteger:seconds forKey:GLStopsAutomaticallyAfterDefaultsName];
 }
 
+// Persisted so the resume notification still fires when the app is relaunched by a significant location change
+- (BOOL)didPauseByRadius {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:GLDidPauseByRadiusDefaultsName];
+}
+- (void)setDidPauseByRadius:(BOOL)didPause {
+    [[NSUserDefaults standardUserDefaults] setBool:didPause forKey:GLDidPauseByRadiusDefaultsName];
+}
+
 
 #pragma mark CLLocationManager
 
@@ -1677,6 +1686,18 @@ const double MPH_to_METERSPERSECOND = 0.447;
         return;
     }
     
+    // Send Resume notification if it was paused by Radius constraint
+    if (self.didPauseByRadius) {
+        self.didPauseByRadius = NO;
+
+        // Restart the dwell timer, otherwise the still-expired threshold date re-pauses updates further below
+        self.lastLocationMovedBeyondStopThreshold = nil;
+        self.lastTimeMovedBeyondStopThreshold = nil;
+
+        NSLog(@"Continuing loc updates");
+        [self notify:@"Location updates resumed." withTitle:@"Resumed"];
+    }
+    
     // Just incase these wont be restarted after stopped and user moved significantly, make sure updates start again.
     if (self.trackingMode == kGLTrackingModeStandardAndSignificant) {
         [self.locationManager startUpdatingLocation];
@@ -1822,6 +1843,8 @@ const double MPH_to_METERSPERSECOND = 0.447;
         [self.locationManager stopUpdatingLocation];
         [self.locationManager stopUpdatingHeading];
         [self.locationManager startMonitoringSignificantLocationChanges];
+        
+        self.didPauseByRadius = YES;
         
         NSLog(@"Stopping loc updates");
         [self notify:@"Location updates paused. Waiting for significant movement." withTitle:@"Paused"];
